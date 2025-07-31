@@ -1,5 +1,11 @@
 package randomizedtest;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import edu.princeton.cs.algs4.StdRandom;
+import timingtest.AList;
+
 /** Array based list.
  *  @author Josh Hug
  */
@@ -59,12 +65,65 @@ public class BuggyAList<Item> {
     /** Deletes item from back of the list and
       * returns deleted item. */
     public Item removeLast() {
-        if ((size < items.length / 4) && (size > 4)) {
-            resize(size / 4);
+        if ((size < items.length ) && (size > 0)) {
+            resize(items.length);
         }
         Item x = getLast();
         items[size - 1] = null;
         size = size - 1;
         return x;
     }
+
+    @Test
+    public void testThreeAddThreeRemove() {
+    AListNoResizing<Integer> good = new AListNoResizing<>();
+    BuggyAList<Integer> buggy = new BuggyAList<>();
+    int[] val = {4, 5, 6};
+    for (int x : val) {
+        good.addLast(x);
+        buggy.addLast(x);
+    }
+    for (int i = 2; i >= 0; i--) {
+        assertEquals(good.removeLast(), buggy.removeLast());
+
+    }
+
+    }
+
+    @Test
+    public void randomizedTest() {
+        AListNoResizing<Integer> good = new AListNoResizing<>();
+        BuggyAList<Integer> buggy = new BuggyAList<>();
+        int N = 5000;
+        for (int i = 0; i < N; i += 1) {
+            int op = StdRandom.uniform(0, 4); // 0:add 1:remove 2:get 3:size
+            switch (op){
+                case 0:
+                    int val  = StdRandom.uniform(0, 1000);
+                    good.addLast(val);
+                    buggy.addLast(val);
+                    break;
+
+                case 1:
+                    if (good.size() > 0){
+                        assertEquals(good.removeLast(), buggy.removeLast());
+                    }
+                    break;
+
+                case 2:
+                    if (good.size() > 0){
+                        assertEquals(good.getLast(), buggy.getLast());
+                    }
+                    break;
+
+                case 3:
+                    if (good.size() > 0){
+                        assertEquals(good.size(), buggy.size());
+                    }
+                    break;
+            }
+        }
+
+    }
+
 }
